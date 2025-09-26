@@ -89,12 +89,12 @@ def bc_3D(N=10):
     X, Y = np.meshgrid(x, y)
     V = np.zeros((N+1, N+1))
         
-    # Set the boundary conditions along the x-axis
+    # Set the boundary conditions along the y-axis
     for i in range(0, N+1):
         V[i, 0] = Vo
         V[i, N] = 0
         
-    # Set the boundary conditions along the y-axis
+    # Set the boundary conditions along the x-axis
     for j in range(0, N+1):
         V[0, j] = 0
         V[N, j] = 0
@@ -115,7 +115,13 @@ def bc_3D(N=10):
 # Define the voltage as a fourier series
 def V_fourier(n=100):
     """Creates a 2D electric potential function for a given number of terms in the fourier series.
-
+    
+    Boundary Conditions:
+        i. V = 0 at y = 0
+        ii. V = 0 at y = a
+        iii. V = Vo(y) at x = 0
+        iv. V = 0 as x -> infinity
+        
     Args:
         n (int, optional): The number of terms in the fourier series. Defaults to 100.
         
@@ -325,3 +331,4 @@ def V_heatmap(V, Diff, version):
     fig.colorbar(im2, ax=ax[1], orientation='vertical')
     # Show the plot
     plt.show()
+

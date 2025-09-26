@@ -89,15 +89,15 @@ def bc_3D(N=10):
     X, Y = np.meshgrid(x, y)
     V = np.zeros((N+1, N+1))
         
-    # Set the boundary conditions along the y-axis
+    # Set the boundary conditions along the y-axis V[i, 0] and parallel at x = inf V[i, N]
     for i in range(0, N+1):
-        V[i, 0] = Vo
-        V[i, N] = 0
+        V[i, 0] = Vo   # x = 0
+        V[i, N] = 0   # x = inf
         
-    # Set the boundary conditions along the x-axis
+    # Set the boundary conditions along the x-axis V[0, j] and parallel at y = a V[N, j]
     for j in range(0, N+1):
-        V[0, j] = 0
-        V[N, j] = 0
+        V[0, j] = 0   # y = 0
+        V[N, j] = 0   # y = a
         
     # Plot the boundary conditions in 3D
     fig = plt.figure()
@@ -331,4 +331,5 @@ def V_heatmap(V, Diff, version):
     fig.colorbar(im2, ax=ax[1], orientation='vertical')
     # Show the plot
     plt.show()
+
 

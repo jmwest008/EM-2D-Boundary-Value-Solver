@@ -4,18 +4,18 @@ def display_3D():
     """Test the 3D plot of the Fourier series and the error of the fourier series compared to the exact solution.
         Loops through n values to determine the best n value to approximate the solution.
         
-    Contains the following functions:
+    Uses the following functions:
     
-        - EMfunction.V_function
+        - EMdef_function.V_function
         Given the values of Vo and a, calculate the exact solution of the potential function in the x-y plane.
         
-        - EMfourier.V_fourier
+        - EMdef_functions.V_fourier
         Calculate the Fourier series of the potential at each point for given n value.
         
         - EMV_3D.V_3D_Graph
         Display the 3D plot of the potential function using data from eith EMfourier or EMfunction.
         
-        - EMcompare.abserr
+        - EMdef_functions.abserr
         Display the absolute error between the fourier series and the exact solution.
         
     Returns:
@@ -66,4 +66,5 @@ def display_3D():
     df.V_3D_Graph(err, 'Relative Error, ' + nvalue)   
     df.V_heatmap(df.V_fourier(best_n), err, 'Fourier Series, ' + nvalue)
     
+
 

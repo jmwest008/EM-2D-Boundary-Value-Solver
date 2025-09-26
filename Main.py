@@ -11,7 +11,8 @@ if __name__ == '__main__':
     
     # Plot the 3D graph of the potential function for the Fourier series
     # and the absolute error of the fourier series compared to the exact solution
-    # Iterate through n starting with steps of 200, 50, 5, then 1 to get the lowest n value that is still accurate
+    # Iterate through n starting with steps of 200, 50, 10, 4, then 1 to get the lowest n value that is still accurate
     # with average error of the potential less than float-epsilon / 2 (approximately 1.11E-16)
     test.display_3D()
+
     

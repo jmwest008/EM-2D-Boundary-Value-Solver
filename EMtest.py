@@ -48,7 +48,7 @@ def display_3D():
         i -= N
         return i
     
-    # Calculate best n with steps of 50, 10, then 1
+    # Calculate best n with steps of 200, 50, 10, 4, then 1
     best_n = det_N(200, 0)
     best_n = det_N(50, best_n)
     best_n = det_N(10, best_n)
@@ -66,3 +66,4 @@ def display_3D():
     df.V_3D_Graph(err, 'Relative Error, ' + nvalue)   
     df.V_heatmap(df.V_fourier(best_n), err, 'Fourier Series, ' + nvalue)
     
+

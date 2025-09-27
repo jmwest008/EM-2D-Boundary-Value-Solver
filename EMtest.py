@@ -32,39 +32,43 @@ def display_3D():
     import EMdef_functions as df
     # Defines minimal value error float values
     float_epsilon = np.finfo(float).eps
-    
-    
+    # Cache the exact solution once for reuse
+    exact = df.V_function()
+
     # determine the lowest n with average error less than float_epsilon
     # given the number of steps n jumps each time
-    def det_N(N, i):
+    def det_N(N, start, exact_solution, *, cache_result=False):
         # Variables for determing best n value in loop
         avg_err = 1
+        candidate = start
+        approx_cache = None
+        error_cache = None
         # loop to find acceptable n
         while avg_err > float_epsilon/2:
-            i += N
-            avg_err = np.mean(df.abserr(df.V_fourier(i), df.V_function()))
+            candidate += N
+            approx_cache = df.V_fourier(candidate)
+            error_cache = df.abserr(approx_cache, exact_solution)
+            avg_err = np.mean(error_cache)
         print(f'The step size is {N}')
-        print(f'n = {i}')
-        i -= N
-        return i
-    
+        print(f'n = {candidate}')
+        fallback = candidate - N
+        if cache_result:
+            return fallback, candidate, approx_cache, error_cache
+        return fallback, candidate
+
     # Calculate best n with steps of 200, 50, 10, 4, then 1
-    best_n = det_N(200, 0)
-    best_n = det_N(50, best_n)
-    best_n = det_N(10, best_n)
-    best_n = det_N(4, best_n)
-    best_n = det_N(1, best_n)
-    best_n += 1
-    err = df.abserr(df.V_fourier(best_n), df.V_function())
-    
+    current_n, _ = det_N(200, 0, exact)
+    current_n, _ = det_N(50, current_n, exact)
+    current_n, _ = det_N(10, current_n, exact)
+    current_n, _ = det_N(4, current_n, exact)
+    current_n, best_n, approx, error_surface = det_N(1, current_n, exact, cache_result=True)
+
     # print the n value that is most accurate
     print(f'The best n value is n = {best_n}')
-        
+
     # plot the 3D graph of the potential function using the fourier series and the error of the fourier series compared to the exact solution
     nvalue = 'n = ' + str(best_n)
-    df.V_3D_Graph(df.V_fourier(best_n), 'Fourier Series, ' + nvalue)
-    df.V_3D_Graph(err, 'Relative Error, ' + nvalue)   
-    df.V_heatmap(df.V_fourier(best_n), err, 'Fourier Series, ' + nvalue)
+    df.V_3D_Graph(approx, 'Fourier Series, ' + nvalue)
+    df.V_3D_Graph(error_surface, 'Relative Error, ' + nvalue)
+    df.V_heatmap(approx, error_surface, 'Fourier Series, ' + nvalue)
     
-
-

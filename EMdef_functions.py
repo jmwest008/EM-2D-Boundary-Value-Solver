@@ -218,28 +218,15 @@ def abserr(V1, V2):
         V1 (numpy.ndarray): The first matrix containing voltage values.
         V2 (numpy.ndarray): The second matrix containing voltage values.
     
-    Parameters:
-        N: The number of points along each axis
-        a: The upper bounds of the potential in the y direction
-        x: The x values of the grid
-        y: The y values of the grid
+    Variables:
         Diff: A matrix containing the absolute error between V1 and V2.
 
     Returns:
         Diff: A matrix containing the absolute error between V1 and V2.
     """
     import numpy as np
-    # Define variables
-    N = 100
-    a = 5
-    x = np.arange(0, 10, 10/N)
-    y = np.arange(0, a, a/N)
-    Diff = np.zeros((N, N))
-
-    for i in range(0, N):
-        for j in range(0, N):
-            Diff[i][j] = abs(V1[i][j] - V2[i][j])
-            
+    Diff = np.abs(V1 - V2)
+    
     return Diff
 
 # Take in a 2D array of the electric potential with sizes x * y
@@ -331,5 +318,6 @@ def V_heatmap(V, Diff, version):
     fig.colorbar(im2, ax=ax[1], orientation='vertical')
     # Show the plot
     plt.show()
+
 
 

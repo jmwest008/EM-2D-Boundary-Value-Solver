@@ -1,21 +1,30 @@
-
 # Extend 2D plot to 3D
-def display_3D():
+import numpy as np
+
+
+DEFAULT_ERROR_TOLERANCE = 1e-6
+# Default average error tolerance used when determining n values.
+
+DEFAULT_MAX_ITERATIONS = 250
+# Default maximum iterations allowed while searching for an acceptable n value.
+
+
+def display_3D(*, tolerance: float = DEFAULT_ERROR_TOLERANCE, max_iterations: int = DEFAULT_MAX_ITERATIONS) -> bool:
     """Test the 3D plot of the Fourier series and the error of the fourier series compared to the exact solution.
         Loops through n values to determine the best n value to approximate the solution.
         
     Uses the following functions:
     
-        - EMdef_function.V_function
+        - EMfunction.V_function
         Given the values of Vo and a, calculate the exact solution of the potential function in the x-y plane.
         
-        - EMdef_functions.V_fourier
+        - EMfourier.V_fourier
         Calculate the Fourier series of the potential at each point for given n value.
         
         - EMV_3D.V_3D_Graph
         Display the 3D plot of the potential function using data from eith EMfourier or EMfunction.
         
-        - EMdef_functions.abserr
+        - EMcompare.abserr
         Display the absolute error between the fourier series and the exact solution.
         
     Returns:
@@ -25,43 +34,89 @@ def display_3D():
         In reality, the electric potential is independent of the z-axis. For any set of fixed points in the x-y plane,
         the electric potential is the same, regardless of the value of z.
         This is done for visualization purposes.
+    Args:
+        tolerance (float, optional): Average error tolerance used while determining the
+            candidate ``n`` values. Defaults to :data:`DEFAULT_ERROR_TOLERANCE` (``1e-6``).
+        max_iterations (int, optional): Maximum iterations permitted while searching for an
+            ``n`` value that satisfies the tolerance. Defaults to
+            :data:`DEFAULT_MAX_ITERATIONS` (``250``).
+
+    Returns:
+        bool: ``True`` when an appropriate ``n`` value is found, otherwise ``False`` when the
+        search exceeded ``max_iterations``. Callers should check the return value so that scripts
+        can terminate gracefully instead of hanging.
     """
-    # Import the necessary modules
-    import numpy as np
     # Import the necessary functions
     import EMdef_functions as df
-    # Defines minimal value error float values
-    float_epsilon = np.finfo(float).eps
     # Cache the exact solution once for reuse
     exact = df.V_function()
 
-    # determine the lowest n with average error less than float_epsilon
+    # determine the lowest n with average error less than tolerance
     # given the number of steps n jumps each time
-    def det_N(N, start, exact_solution, *, cache_result=False):
+    def det_N(
+        N,
+        start,
+        exact_solution,
+        *,
+        cache_result=False,
+        tolerance=tolerance,
+        max_iterations=max_iterations,
+    ):
         # Variables for determing best n value in loop
-        avg_err = 1
+        avg_err = np.inf
         candidate = start
         approx_cache = None
         error_cache = None
+        previous_candidate = start
+        iterations = 0
+        success = False
         # loop to find acceptable n
-        while avg_err > float_epsilon/2:
+        while iterations < max_iterations and avg_err > tolerance:
+            iterations += 1
             candidate += N
             approx_cache = df.V_fourier(candidate)
             error_cache = df.abserr(approx_cache, exact_solution)
             avg_err = np.mean(error_cache)
-        print(f'The step size is {N}')
-        print(f'n = {candidate}')
-        fallback = candidate - N
+            if avg_err <= tolerance:
+                success = True
+                break
+            previous_candidate = candidate
+
+        if success:
+            print(f'The step size is {N}')
+            print(f'n = {candidate}')
+        else:
+            print(
+                f"Stopping search for step {N}: reached maximum iterations ({max_iterations}) "
+                f"after {iterations} attempts without meeting the tolerance {tolerance:.3e}. "
+                f"Last candidate n = {candidate} with average error {avg_err:.3e}."
+            )
+
+        fallback = previous_candidate
         if cache_result:
-            return fallback, candidate, approx_cache, error_cache
-        return fallback, candidate
+            return success, fallback, candidate, approx_cache, error_cache
+        return success, fallback, candidate
 
     # Calculate best n with steps of 200, 50, 10, 4, then 1
-    current_n, _ = det_N(200, 0, exact)
-    current_n, _ = det_N(50, current_n, exact)
-    current_n, _ = det_N(10, current_n, exact)
-    current_n, _ = det_N(4, current_n, exact)
-    current_n, best_n, approx, error_surface = det_N(1, current_n, exact, cache_result=True)
+    success, current_n, _ = det_N(200, 0, exact)
+    if not success:
+        return False
+
+    success, current_n, _ = det_N(50, current_n, exact)
+    if not success:
+        return False
+
+    success, current_n, _ = det_N(10, current_n, exact)
+    if not success:
+        return False
+
+    success, current_n, _ = det_N(4, current_n, exact)
+    if not success:
+        return False
+
+    success, current_n, best_n, approx, error_surface = det_N(1, current_n, exact, cache_result=True)
+    if not success:
+        return False
 
     # print the n value that is most accurate
     print(f'The best n value is n = {best_n}')
@@ -71,4 +126,5 @@ def display_3D():
     df.V_3D_Graph(approx, 'Fourier Series, ' + nvalue)
     df.V_3D_Graph(error_surface, 'Relative Error, ' + nvalue)
     df.V_heatmap(approx, error_surface, 'Fourier Series, ' + nvalue)
-    
+
+    return True

@@ -1,4 +1,3 @@
-
 # Discrete boundary condition grid
 def bc_known(N=10):
     """Define the boundary conditions of electric potential
@@ -89,15 +88,15 @@ def bc_3D(N=10):
     X, Y = np.meshgrid(x, y)
     V = np.zeros((N+1, N+1))
         
-    # Set the boundary conditions along the y-axis V[i, 0] and parallel at x = inf V[i, N]
+    # Set the boundary conditions along the y-axis
     for i in range(0, N+1):
-        V[i, 0] = Vo   # x = 0
-        V[i, N] = 0   # x = inf
+        V[i, 0] = Vo
+        V[i, N] = 0
         
-    # Set the boundary conditions along the x-axis V[0, j] and parallel at y = a V[N, j]
+    # Set the boundary conditions along the x-axis
     for j in range(0, N+1):
-        V[0, j] = 0   # y = 0
-        V[N, j] = 0   # y = a
+        V[0, j] = 0
+        V[N, j] = 0
         
     # Plot the boundary conditions in 3D
     fig = plt.figure()
@@ -115,13 +114,7 @@ def bc_3D(N=10):
 # Define the voltage as a fourier series
 def V_fourier(n=100):
     """Creates a 2D electric potential function for a given number of terms in the fourier series.
-    
-    Boundary Conditions:
-        i. V = 0 at y = 0
-        ii. V = 0 at y = a
-        iii. V = Vo(y) at x = 0
-        iv. V = 0 as x -> infinity
-        
+
     Args:
         n (int, optional): The number of terms in the fourier series. Defaults to 100.
         
@@ -141,19 +134,19 @@ def V_fourier(n=100):
     Vo = 1
     N = 100
     a = 5
-    x = np.arange(0, 10, 10/N)
-    y = np.arange(0, a, a/N)
+    x = np.linspace(0, 10, N)
+    y = np.linspace(0, a, N)
     V = np.zeros((N, N))
 
     # Conditions for the boundaries
     # i. V(y = 0) = 0
     V[0, :] = 0
     # ii. V(y = a) = 0
-    V[N-1, :] = 0
+    V[-1, :] = 0
     # iii. V(x = 0) = Vo
     V[:, 0] = Vo
     # iv. V = 0 as x -> infinity
-    V[:, N-1] = 0
+    V[:, -1] = 0
 
     # Define the fourier series for the electric potential
     # Loop through each point in the grid
@@ -187,19 +180,19 @@ def V_function():
     N = 100
     Vo = 1
     a = 5
-    x = np.arange(0, 10, 10/N)
-    y = np.arange(0, a, a/N)
+    x = np.linspace(0, 10, N)
+    y = np.linspace(0, a, N)
     V = np.zeros((N, N))
     # Conditions for the boundaries
     # Defined explicitly to prevent computing issues
     # i. V(y = 0) = 0
     V[0, :] = 0
     # ii. V(y = a) = 0
-    V[N-1, :] = 0
+    V[-1, :] = 0
     # iii. V(x = 0) = Vo
     V[:, 0] = Vo
     # iv. V = 0 as x -> infinity
-    V[:, N-1] = 0
+    V[:, -1] = 0
     
     # Calculate the electric potential at each point in the grid
     for i in range(1, N-1):
@@ -252,11 +245,12 @@ def V_3D_Graph(V, version):
     # Import the necessary modules
     import matplotlib.pyplot as plt, numpy as np
     # Define variables
-    N = 100
     a = 5
     # Create the grid
-    x = np.arange(0, 10, 10/N)
-    y = np.arange(0, a, a/N)
+    V = np.asarray(V)
+    num_rows, num_cols = V.shape
+    x = np.linspace(0, 10, num_cols)
+    y = np.linspace(0, a, num_rows)
     X, Y = np.meshgrid(x, y)
     # Create the 3D plot
     fig = plt.figure(figsize=(8,6))
@@ -295,21 +289,23 @@ def V_heatmap(V, Diff, version):
     # Import the necessary modules
     import matplotlib.pyplot as plt, numpy as np
     # Define variables
-    N = 100
     a = 5
-    # Create the grid
-    x = np.arange(0, 10, 10/N)
-    y = np.arange(0, a, a/N)
+    V = np.asarray(V)
+    Diff = np.asarray(Diff)
+    num_rows, num_cols = V.shape
+    x = np.linspace(0, 10, num_cols)
+    y = np.linspace(0, a, num_rows)
     X, Y = np.meshgrid(x, y)
     # Create the heatmap
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     # Plot the electric potential
-    im1 = ax[0].imshow(V, cmap='coolwarm', extent=[0, 10, 0, 5])
+    extent = [x[0], x[-1], y[0], y[-1]]
+    im1 = ax[0].imshow(V, cmap='coolwarm', extent=extent, origin='lower', aspect='auto')
     ax[0].set_title(f'Electric Potential: {version}')
     ax[0].set_xlabel('x')
     ax[0].set_ylabel('y')
     # Plot the absolute error
-    im2 = ax[1].imshow(Diff, cmap='hot', extent=[0, 10, 0, 5])
+    im2 = ax[1].imshow(Diff, cmap='hot', extent=extent, origin='lower', aspect='auto')
     ax[1].set_title(f'Absolute Error: {version}')
     ax[1].set_xlabel('x')
     ax[1].set_ylabel('y')
@@ -318,6 +314,4 @@ def V_heatmap(V, Diff, version):
     fig.colorbar(im2, ax=ax[1], orientation='vertical')
     # Show the plot
     plt.show()
-
-
-
+    

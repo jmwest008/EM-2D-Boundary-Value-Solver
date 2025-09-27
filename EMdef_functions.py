@@ -89,14 +89,12 @@ def bc_3D(N=10):
     V = np.zeros((N+1, N+1))
         
     # Set the boundary conditions along the y-axis
-    for i in range(0, N+1):
-        V[i, 0] = Vo
-        V[i, N] = 0
-        
+    V[:, 0] = Vo
+    V[:, -1] = 0
+
     # Set the boundary conditions along the x-axis
-    for j in range(0, N+1):
-        V[0, j] = 0
-        V[N, j] = 0
+    V[0, :] = 0
+    V[-1, :] = 0
         
     # Plot the boundary conditions in 3D
     fig = plt.figure()
@@ -334,3 +332,4 @@ def V_heatmap(V, Diff, version):
     fig.colorbar(im2, ax=ax[1], orientation='vertical')
     # Show the plot
     plt.show()
+

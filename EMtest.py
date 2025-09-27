@@ -51,6 +51,9 @@ def display_3D(*, tolerance: float = DEFAULT_ERROR_TOLERANCE, max_iterations: in
     # Cache the exact solution once for reuse
     exact = df.V_function()
 
+    # Cache previously computed approximations and error surfaces by n value
+    evaluation_cache: dict[int, tuple[np.ndarray, np.ndarray]] = {}
+    
     # determine the lowest n with average error less than tolerance
     # given the number of steps n jumps each time
     def det_N(
@@ -74,8 +77,13 @@ def display_3D(*, tolerance: float = DEFAULT_ERROR_TOLERANCE, max_iterations: in
         while iterations < max_iterations and avg_err > tolerance:
             iterations += 1
             candidate += N
-            approx_cache = df.V_fourier(candidate)
-            error_cache = df.abserr(approx_cache, exact_solution)
+
+            if candidate in evaluation_cache:
+                approx_cache, error_cache = evaluation_cache[candidate]
+            else:
+                approx_cache = df.V_fourier(candidate)
+                error_cache = df.abserr(approx_cache, exact_solution)
+                evaluation_cache[candidate] = (approx_cache, error_cache)
             avg_err = np.mean(error_cache)
             if avg_err <= tolerance:
                 success = True

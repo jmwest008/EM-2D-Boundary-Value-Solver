@@ -148,13 +148,23 @@ def V_fourier(n=100):
     # iv. V = 0 as x -> infinity
     V[:, -1] = 0
 
-    # Define the fourier series for the electric potential
-    # Loop through each point in the grid
-    for i in range(1, N-1):
-        for j in range(1, N-1):
-            # Sum the fourier series for the electric potential at given point (i, j) in the grid
-            for k in range(1, n+1, 2):
-                V[j,i] += (4*Vo/np.pi) * (1/k) * np.exp(-k*np.pi*x[i]/a) * np.sin(k*np.pi*y[j]/a)
+    # Define the fourier series for the electric potential using vectorized operations
+    ks = np.arange(1, n + 1, 2)
+    if ks.size and N > 2:
+        coeffs = (4 * Vo / np.pi) / ks
+        x_interior = x[1:-1]
+        y_interior = y[1:-1]
+
+        exp_vals = np.exp(-np.pi * np.outer(x_interior, ks) / a)
+        sin_vals = np.sin(np.pi * np.outer(y_interior, ks) / a)
+
+        V[1:-1, 1:-1] = np.einsum('yk,xk,k->yx', sin_vals, exp_vals, coeffs, optimize=True)
+
+    # Re-apply boundary conditions to guarantee correct corner values
+    V[0, :] = 0
+    V[-1, :] = 0
+    V[:, 0] = Vo
+    V[:, -1] = 0
 
     return V
 
@@ -314,4 +324,3 @@ def V_heatmap(V, Diff, version):
     fig.colorbar(im2, ax=ax[1], orientation='vertical')
     # Show the plot
     plt.show()
-    

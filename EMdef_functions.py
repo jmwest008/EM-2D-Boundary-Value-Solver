@@ -204,11 +204,21 @@ def V_function():
     # iv. V = 0 as x -> infinity
     V[:, -1] = 0
     
-    # Calculate the electric potential at each point in the grid
-    for i in range(1, N-1):
-        for j in range(1, N-1):
-            V[j,i] = (2*Vo/np.pi) * np.arctan((np.sin(np.pi*y[j]/a)/np.sinh(np.pi*x[i]/a)))
-    
+    # Calculate the electric potential at each interior point in the grid
+    if N > 2:
+        x_interior = x[1:-1]
+        y_interior = y[1:-1]
+        X_int, Y_int = np.meshgrid(x_interior, y_interior)
+        V[1:-1, 1:-1] = (2 * Vo / np.pi) * np.arctan(
+            np.sin(np.pi * Y_int / a) / np.sinh(np.pi * X_int / a)
+        )
+
+    # Re-apply boundary conditions to guarantee correct corner values
+    V[0, :] = 0
+    V[-1, :] = 0
+    V[:, 0] = Vo
+    V[:, -1] = 0
+
     return V
 
 # Compare the given approximation with the exact solution of the given PDE
